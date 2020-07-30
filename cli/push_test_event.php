@@ -17,9 +17,9 @@
 /**
  * Send events to event testing page
  *
- * @package    core
+ * @package    tool_realtime
  * @subpackage cli
- * @copyright  2020 Nicholas Parker <ncpark3r@gmail.com>
+ * @copyright  2020 Daniel Conquit, Matthew Gray, Nicholas Parker, Dan Thistlewaite
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -30,19 +30,21 @@ require_once("$CFG->libdir/clilib.php");
 require_once("$CFG->libdir/outputlib.php");
 
 $longparams = [
-    'type' => null,
+    'context' => null,
+    'component' => null,
+    'area' => null,
     'id' => null,
     'payload' => null,
-    'help' => false,
-    'verbose' => false
+    'help' => false
 ];
 
 $shortmappings = [
-    't' => 'type',
-    'id' => 'id',
+    'c' => 'context',
+    'n' => 'component',
+    'a' => 'area',
+    'i' => 'id',
     'p' => 'payload',
-    'h' => 'help',
-    'v' => 'verbose'
+    'h' => 'help'
 ];
 
 // Get CLI params.
@@ -55,33 +57,53 @@ if ($unrecognized) {
 
 if ($options['help']) {
     echo
-    "Send
-By default all themes will be recompiled unless otherwise specified.
+    "This CLI creates a new event with specific context and allows testing of the realtime tool
 Options:
--t, --type      type of event to be sent
--id, --id       identification number for event
--v, --verbose   Print info comments to stdout
--h, --help      Print out this help
+-c, --context       context for events
+-n, --component     component events relate to
+-a, --area          area related to event
+-i, --id            event ID
+-p, --payload       payload json for event
+-h, --help          Print out this help
 Example:
 
-\$ sudo -u www-data var/www/html/moodle/admin/tool/realtime/cli/push_test_event.php --type=chatmessage --id=1337
-";
+\$ php admin/tool/realtime/cli/push_test_event.php --context=3\
+        --component=thiscomponent --area=pingtest --id=123 --payload='{\"testkey1\":\"testvalue1\",\"testkey2\":\"testvalue2\"}'\n";
     die;
-}
-
-if (empty($options['verbose'])) {
-    $trace = new null_progress_trace();
-} else {
-    $trace = new text_progress_trace();
 }
 
 cli_heading('Push Test Event');
 
-$contexttest = context_user::instance(3);
-$componenttest = "testcomponent";
-$areatest = "testarea";
-$itemidtest = 123;
-$payload = array("Volvo", "BMW", "Toyota");
-\tool_realtime\api::notify($contexttest, $componenttest, $areatest, $itemidtest, $payload);
+if (!is_null($options['context'])) {
+    $userid = [$options['context']];
+    $context = context_user::instance($userid[0]);
+} else {
+    $context = context_system::instance();
+}
+if (!is_null($options['component'])) {
+    $component = [$options['component']][0];
+} else {
+    $component = 'moodle';
+}
+if (!is_null($options['area'])) {
+    $area = [$options['area']][0];
+} else {
+    cli_error("Missing arg: area\nAdd -h for help");
+}
+if (!is_null($options['id'])) {
+    $id = [$options['id']][0];
+} else {
+    cli_error("Missing arg: id\nAdd -h for help");
+}
 
-exit(0);
+// Create payload array.
+if (!is_null($options['payload'])) {
+    $payload = json_decode([$options['payload']][0], true);
+} else {
+    cli_error("Missing arg: payload\nAdd -h for help");
+}
+// Append server time before sending.
+$payload["eventReceived"] = microtime(true) * 1000;
+
+\tool_realtime\api::notify($context, $component, $area, $id, $payload);
+

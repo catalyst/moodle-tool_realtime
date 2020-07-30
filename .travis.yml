@@ -14,11 +14,11 @@ cache:
     - $HOME/.npm
 
 php:
-  - 7.2
+  - 7.4
 
 env:
   - DB=pgsql MOODLE_BRANCH=master
-  - DB=pgsql MOODLE_BRANCH=MOODLE_38_STABLE CODECHECK=1
+  - DB=pgsql MOODLE_BRANCH=MOODLE_39_STABLE CODECHECK=1
 
 before_install:
   - phpenv config-rm xdebug.ini

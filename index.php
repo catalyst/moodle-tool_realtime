@@ -18,27 +18,27 @@
  *  A page for testing realtime event pushing form CL.
  *
  * @package    tool_realtime
- * @copyright  2020 Nicholas Parker
+ * @copyright  2020 Daniel Conquit, Matthew Gray, Nicholas Parker, Dan Thistlewaite
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 require_once(dirname(__FILE__) . '/../../../config.php');
+require_once($CFG->dirroot . '/lib/adminlib.php');
 
-$url = new moodle_url('/admin/tool/realtime/plugin/phppoll/');
-$PAGE->set_url($url);
-$PAGE->set_pagelayout('report');
+$url = new moodle_url('/admin/tool/realtime/');
+admin_externalpage_setup('tool_realtime_report');
 $PAGE->set_context(context_system::instance());
 $PAGE->set_title(get_string('pluginname', 'tool_realtime'));
 $PAGE->set_heading(get_string('pluginname', 'tool_realtime'));
-$PAGE->navbar->add(get_string('pluginname', 'tool_realtime'), $url);
-require_login($course, true, $cm);
-$contexttest = context_user::instance($USER->id);
-$componenttest = "testcomponent";
-$areatest = "testarea";
-$itemidtest = 123;
-\tool_realtime\api::subscribe($contexttest, $componenttest, $areatest, $itemidtest);
+$contextt = context_user::instance($USER->id);
+$component = "thiscomponent";
+$area = "pingtest";
+$itemid = 1;
+\tool_realtime\api::subscribe($contextt, $component, $area, $itemid);
 echo $OUTPUT->header();
-print_object($USER);
+echo $OUTPUT->heading(get_string('eventtesting', 'tool_realtime'));
+Echo
+"<div id='testarea'></div>";
 echo $OUTPUT->footer();
 ?>
 
@@ -46,6 +46,36 @@ echo $OUTPUT->footer();
     require(['core/pubsub', 'tool_realtime/events'], function(PubSub, RealTimeEvents) {
         PubSub.subscribe(RealTimeEvents.EVENT, function(data) {
             console.log(data);
+            let testArea = document.getElementById('testarea');
+            testArea.appendChild(document.createElement("br"));
+            let headingForEvent = document.createElement('div');
+            headingForEvent.setAttribute('id', 'eventHeading');
+            headingForEvent.style.fontWeight = 'bold';
+            testArea.appendChild(headingForEvent);
+            let eventReceivedText = document.createTextNode("Event received:");
+            let eventReceived = new Date().getTime();
+            let itemID = document.createTextNode("ID:    " + data['itemid']);
+            let area = document.createTextNode("Component:    " + data['area']);
+            let component = document.createTextNode("Area:    " + data['component']);
+            let payloadtext = document.createTextNode("Payload: ");
+            headingForEvent.appendChild(eventReceivedText);
+            testArea.appendChild(document.createElement("br"));
+            testArea.appendChild(itemID);
+            testArea.appendChild(document.createElement("br"));
+            testArea.appendChild(area);
+            testArea.appendChild(document.createElement("br"));
+            testArea.appendChild(component);
+            testArea.appendChild(document.createElement("br"));
+            testArea.appendChild(payloadtext);
+            testArea.appendChild(document.createElement("br"));
+            for (let key in data['payload']) {
+                if (key !== 'eventReceived') {
+                    testArea.appendChild(document.createTextNode(key + " => " + data['payload'][key]));
+                    testArea.appendChild(document.createElement("br"));
+                }
+            }
+            testArea.appendChild(document.createTextNode("Latency is: " + (eventReceived - parseInt(data['payload']['eventReceived'])) + " milliseconds"));
+            testArea.appendChild(document.createElement("br"));
         });
     });
 </script>

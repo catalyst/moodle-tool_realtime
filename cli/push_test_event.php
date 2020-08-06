@@ -62,7 +62,7 @@ Options:
 -c, --context       context for events
 -n, --component     component events relate to
 -a, --area          area related to event
--i, --id            event ID
+-i, --itemid            event ID
 -p, --payload       payload json for event
 -h, --help          Print out this help
 Example:

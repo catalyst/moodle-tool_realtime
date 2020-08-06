@@ -59,7 +59,7 @@ class plugin extends plugin_base {
      * @param string $area
      * @param int $itemid
      */
-    public function subscribe(\context $context, string $component, string $area, int $itemid): void {
+    public function subscribe(\context $context,string $component, string $area, int $itemid): void {
         // TODO currently disregards arguments.
         global $PAGE, $USER, $DB;
         if (!$this->is_set_up() || !isloggedin() || isguestuser() || self::$initialised) {
@@ -70,9 +70,7 @@ class plugin extends plugin_base {
             "} WHERE contextid = ?", [$context->id]);
         $url = new \moodle_url('/admin/tool/realtime/plugin/phppoll/poll.php');
         $PAGE->requires->js_call_amd('realtimeplugin_phppoll/realtime', 'init',
-            [$USER->id, self::get_token(), $fromid, $url->out(false), $this->get_delay_between_checks()]);
-        self::$initialised = true;
-
+            [$USER->id, self::get_token(), $component, $area, $itemid, $fromid, $url->out(false), $this->get_delay_between_checks()]);
     }
 
     /**
@@ -145,12 +143,11 @@ class plugin extends plugin_base {
      * @param int $fromid
      * @return array
      */
-    public function get_all(int $userid, int $fromid = 0): array {
-        // TODO currently only retrieves events for the current user context.
+    public function get_all(int $userid, int $fromid = 0, string $component, string $area, int $itemid): array {
         global $DB;
         $events = $DB->get_records_select(self::TABLENAME,
-            'contextid = :contextid AND id > :fromid',
-            ['contextid' => \context_user::instance($userid)->id, 'fromid' => $fromid],
+            'contextid = :contextid AND id > :fromid AND component = :component AND area = :area AND itemid = :itemid',
+            ['contextid' => \context_user::instance($userid)->id, 'fromid' => $fromid, 'component' => $component, 'area' => $area, 'itemid' => $itemid],
             'id', 'id, contextid, component, area, itemid, payload');
         array_walk($events, function(&$item) {
             $item->payload = @json_decode($item->payload, true);

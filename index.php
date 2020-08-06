@@ -30,11 +30,15 @@ admin_externalpage_setup('tool_realtime_report');
 $PAGE->set_context(context_system::instance());
 $PAGE->set_title(get_string('pluginname', 'tool_realtime'));
 $PAGE->set_heading(get_string('pluginname', 'tool_realtime'));
-$contextt = context_user::instance($USER->id);
+$context = context_system::instance();
 $component = "thiscomponent";
+$component2 = "thatcomponent";
 $area = "pingtest";
+$area2 = "pongtest";
 $itemid = 1;
-\tool_realtime\api::subscribe($contextt, $component, $area, $itemid);
+$itemid2 = 2;
+\tool_realtime\api::subscribe($context, $component, $area, $itemid);
+\tool_realtime\api::subscribe($context, $component2, $area2, $itemid2);
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('eventtesting', 'tool_realtime'));
 Echo

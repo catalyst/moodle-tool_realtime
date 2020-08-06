@@ -10,6 +10,7 @@ define(['core/pubsub', 'tool_realtime/events'], function(PubSub, RealTimeEvents)
     var params;
     var requestscounter = [];
     var pollURL;
+    var ajax = new XMLHttpRequest(), json;
 
     var checkRequestCounter = function() {
         var curDate = new Date(),
@@ -29,9 +30,6 @@ define(['core/pubsub', 'tool_realtime/events'], function(PubSub, RealTimeEvents)
             // Too many requests, stop polling.
             return;
         }
-
-        var ajax = new XMLHttpRequest(),
-            json;
         ajax.onreadystatechange = function() {
             if (this.readyState === 4 && this.status === 200) {
                 if (this.status === 200) {
@@ -41,7 +39,6 @@ define(['core/pubsub', 'tool_realtime/events'], function(PubSub, RealTimeEvents)
                         setTimeout(poll, params.timeout);
                         return;
                     }
-
                     if (!json.success || json.success !== 1) {
                         // Poll.php returned an error or an exception. Stop trying to poll.
                         return;
@@ -63,24 +60,34 @@ define(['core/pubsub', 'tool_realtime/events'], function(PubSub, RealTimeEvents)
                 }
             }
         };
-        var url = pollURL + '?userid=' + encodeURIComponent(params.userid) +
-            '&token=' + encodeURIComponent(params.token) + '&fromid=' + encodeURIComponent(params.fromid);
+        var url = pollURL + '?userid=' + encodeURIComponent(params.userid) + '&token=' +
+            encodeURIComponent(params.token) + '&component=' + encodeURIComponent(params.component)
+             + '&area=' + encodeURIComponent(params.area) +
+            '&itemid=' + encodeURIComponent(params.itemid) +
+            '&fromid=' + encodeURIComponent(params.fromid);
         ajax.open('GET', url, true);
         ajax.send();
     };
 
     return {
-        init: function(userId, token, fromId, pollURLParam, timeout) {
+        init: function(userId, token, component, area, itemid, fromId, pollURLParam, timeout) {
             if (params && params.userid) {
                 // Already initialised.
-                return;
+                ajax.abort();
+                params.component += ('-' + component);
+                params.area += ('-' + area);
+                params.itemid += ('-' + itemid);
+            } else {
+                params = {
+                    userid: userId,
+                    token: token,
+                    component: component,
+                    area: area,
+                    itemid: itemid,
+                    fromid: fromId,
+                    timeout: timeout,
+                };
             }
-            params = {
-                userid: userId,
-                token: token,
-                fromid: fromId,
-                timeout: timeout,
-            };
             pollURL = pollURLParam;
             setTimeout(poll, timeout);
         }

@@ -65,7 +65,6 @@ class plugin extends plugin_base {
         if (!$this->is_set_up() || !isloggedin() || isguestuser() || self::$initialised) {
             return;
         }
-        $context = \context_user::instance($USER->id);
         $fromid = (int)$DB->get_field_sql("SELECT max(id) FROM {" . self::TABLENAME .
             "} WHERE contextid = ?", [$context->id]);
         $url = new \moodle_url('/admin/tool/realtime/plugin/phppoll/poll.php');

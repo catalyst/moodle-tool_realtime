@@ -25,7 +25,7 @@ before_install:
   - nvm install 14.2.0
   - nvm use 14.2.0
   - cd ../..
-  - composer create-project -n --no-dev --prefer-dist blackboard-open-source/moodle-plugin-ci ci ^2
+  - composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci ^2
   - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
   - export MOODLE_START_BEHAT_SERVERS="NO"
 

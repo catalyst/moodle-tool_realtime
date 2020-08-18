@@ -40,6 +40,7 @@ $itemid2 = 2;
 \tool_realtime\api::subscribe($context, $component, $area, $itemid);
 \tool_realtime\api::subscribe($context, $component2, $area2, $itemid2);
 echo $OUTPUT->header();
+print_r($context);
 echo $OUTPUT->heading(get_string('eventtesting', 'tool_realtime'));
 Echo
 "<div id='testarea'></div>";

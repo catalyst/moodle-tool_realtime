@@ -34,7 +34,9 @@ $fromid = optional_param('fromid', 0, PARAM_INT);
 // who is the current user making request
 $userid = optional_param('userid', 0, PARAM_INT);
 $token = optional_param('token', '', PARAM_RAW);
-// explode parametere strings
+// explode parameter strings
+$contextUnprocessed = optional_param('context', '', PARAM_RAW);
+$context = explode('-', $contextUnprocessed);
 $componentUnprocessed = optional_param('component', '', PARAM_RAW);
 $component = explode('-', $componentUnprocessed);
 $areaUnprocessed = optional_param('area', '', PARAM_RAW);
@@ -63,7 +65,7 @@ while (true) {
     }
 
     for ($x = 0; $x < sizeof($component); $x++) {
-        if ($events = $plugin->get_all((int)$userid, (int)$fromid, (string)$component[$x], (string)$area[$x], (int)$itemid[$x])) {
+        if ($events = $plugin->get_all((intval($context[$x])), (int)$fromid, (string)$component[$x], (string)$area[$x], (int)$itemid[$x])) {
             // We have some notifications for this user - return them. The JS will then create a new request.
             echo json_encode(['success' => 1, 'events' => array_values($events)]);
         }

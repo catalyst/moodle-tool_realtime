@@ -75,8 +75,8 @@ Example:
 cli_heading('Push Test Event');
 
 if (!is_null($options['context'])) {
-    $userid = [$options['context']];
-    $context = context_user::instance($userid[0]);
+    $contextid = [$options['context']];
+    $context = \context::instance_by_id($contextid[0]);
 } else {
     $context = context_system::instance();
 }
@@ -104,6 +104,7 @@ if (!is_null($options['payload'])) {
 }
 // Append server time before sending.
 $payload["eventReceived"] = microtime(true) * 1000;
+
 
 \tool_realtime\api::notify($context, $component, $area, $id, $payload);
 

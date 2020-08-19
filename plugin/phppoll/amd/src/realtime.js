@@ -61,7 +61,8 @@ define(['core/pubsub', 'tool_realtime/events'], function(PubSub, RealTimeEvents)
             }
         };
         var url = pollURL + '?userid=' + encodeURIComponent(params.userid) + '&token=' +
-            encodeURIComponent(params.token) + '&component=' + encodeURIComponent(params.component)
+            encodeURIComponent(params.token) + '&context=' + encodeURIComponent(params.context) +
+            '&component=' + encodeURIComponent(params.component)
              + '&area=' + encodeURIComponent(params.area) +
             '&itemid=' + encodeURIComponent(params.itemid) +
             '&fromid=' + encodeURIComponent(params.fromid);
@@ -70,10 +71,11 @@ define(['core/pubsub', 'tool_realtime/events'], function(PubSub, RealTimeEvents)
     };
 
     return {
-        init: function(userId, token, component, area, itemid, fromId, pollURLParam, timeout) {
+        init: function(userId, token, context, component, area, itemid, fromId, pollURLParam, timeout) {
             if (params && params.userid) {
                 // Already initialised.
                 ajax.abort();
+                params.context += ('-' + context);
                 params.component += ('-' + component);
                 params.area += ('-' + area);
                 params.itemid += ('-' + itemid);
@@ -81,6 +83,7 @@ define(['core/pubsub', 'tool_realtime/events'], function(PubSub, RealTimeEvents)
                 params = {
                     userid: userId,
                     token: token,
+                    context: context,
                     component: component,
                     area: area,
                     itemid: itemid,

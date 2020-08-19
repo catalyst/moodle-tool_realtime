@@ -37,6 +37,7 @@ $area = "pingtest";
 $area2 = "pongtest";
 $itemid = 1;
 $itemid2 = 2;
+//debugging("test error", DEBUG_DEVELOPER);
 \tool_realtime\api::subscribe($context, $component, $area, $itemid);
 \tool_realtime\api::subscribe($context, $component2, $area2, $itemid2);
 echo $OUTPUT->header();

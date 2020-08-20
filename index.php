@@ -24,6 +24,11 @@
 
 require_once(dirname(__FILE__) . '/../../../config.php');
 require_once($CFG->dirroot . '/lib/adminlib.php');
+require_once(dirname(__FILE__) . '/plugin/phppoll/classes/realtime_tool_form.php');
+
+
+// Instantiate realtime_tool_form.
+$mform = new realtime_tool_form();
 
 $url = new moodle_url('/admin/tool/realtime/');
 admin_externalpage_setup('tool_realtime_report');
@@ -37,10 +42,14 @@ $area = "pingtest";
 $area2 = "pongtest";
 $itemid = 1;
 $itemid2 = 2;
-//debugging("test error", DEBUG_DEVELOPER);
 \tool_realtime\api::subscribe($context, $component, $area, $itemid);
 \tool_realtime\api::subscribe($context, $component2, $area2, $itemid2);
 echo $OUTPUT->header();
+$mform->display();
+
+if ($mform->no_submit_button_pressed()) {
+    echo 'testlol';
+}
 echo $OUTPUT->heading(get_string('eventtesting', 'tool_realtime'));
 Echo
 "<div id='testarea'></div>";
@@ -79,7 +88,8 @@ echo $OUTPUT->footer();
                     testArea.appendChild(document.createElement("br"));
                 }
             }
-            testArea.appendChild(document.createTextNode("Latency is: " + (eventReceived - parseInt(data['payload']['eventReceived'])) + " milliseconds"));
+            testArea.appendChild(document.createTextNode("Latency is: " +
+                (eventReceived - parseInt(data['payload']['eventReceived'])) + " milliseconds"));
             testArea.appendChild(document.createElement("br"));
         });
     });

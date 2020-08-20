@@ -29,20 +29,21 @@ define('NO_MOODLE_COOKIES', true);
 require_once(__DIR__ . '/../../../../../config.php');
 
 // We do not want to call require_login() here because we don't want to update 'lastaccess' and keep session alive.
-// last event id seen
+// Last event id seen.
 $fromid = optional_param('fromid', 0, PARAM_INT);
-// who is the current user making request
+// Who is the current user making request.
 $userid = optional_param('userid', 0, PARAM_INT);
 $token = optional_param('token', '', PARAM_RAW);
-// explode parameter strings
-$contextUnprocessed = optional_param('context', '', PARAM_RAW);
-$context = explode('-', $contextUnprocessed);
-$componentUnprocessed = optional_param('component', '', PARAM_RAW);
-$component = explode('-', $componentUnprocessed);
-$areaUnprocessed = optional_param('area', '', PARAM_RAW);
-$area = explode('-', $areaUnprocessed);
-$itemidUnprocessed = optional_param('itemid','', PARAM_RAW);
-$itemid = explode('-', $itemidUnprocessed);
+// Explode parameter strings.
+$paramarray = explode(':', optional_param('channel', '', PARAM_RAW));
+$contextunprocessed = $paramarray[0];
+$context = explode('-', $contextunprocessed);
+$componentunprocessed = $paramarray[1];
+$component = explode('-', $componentunprocessed);
+$areaunprocessed = $paramarray[2];
+$area = explode('-', $areaunprocessed);
+$itemidunprocessed = $paramarray[3];
+$itemid = explode('-', $itemidunprocessed);
 
 if (\tool_realtime\manager::get_enabled_plugin_name() !== 'phppoll') {
     echo json_encode(['error' => 'Plugin is not enabled']);
@@ -64,8 +65,9 @@ while (true) {
         exit;
     }
 
-    for ($x = 0; $x < sizeof($component); $x++) {
-        if ($events = $plugin->get_all((intval($context[$x])), (int)$fromid, (string)$component[$x], (string)$area[$x], (int)$itemid[$x])) {
+    for ($x = 0; $x < count($component); $x++) {
+        if ($events = $plugin->get_all((intval($context[$x])), (int)$fromid, (string)$component[$x],
+            (string)$area[$x], (int)$itemid[$x])) {
             // We have some notifications for this user - return them. The JS will then create a new request.
             echo json_encode(['success' => 1, 'events' => array_values($events)]);
         }

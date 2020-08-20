@@ -61,11 +61,10 @@ define(['core/pubsub', 'tool_realtime/events'], function(PubSub, RealTimeEvents)
             }
         };
         var url = pollURL + '?userid=' + encodeURIComponent(params.userid) + '&token=' +
-            encodeURIComponent(params.token) + '&context=' + encodeURIComponent(params.context) +
-            '&component=' + encodeURIComponent(params.component)
-             + '&area=' + encodeURIComponent(params.area) +
-            '&itemid=' + encodeURIComponent(params.itemid) +
-            '&fromid=' + encodeURIComponent(params.fromid);
+            encodeURIComponent(params.token) + '&fromid=' + encodeURIComponent(params.fromid)
+            + '&channel=' + encodeURIComponent(params.context) + ':' +
+            encodeURIComponent(params.component) + ':' + encodeURIComponent(params.area) +
+            ':' + encodeURIComponent(params.itemid);
         ajax.open('GET', url, true);
         ajax.send();
     };

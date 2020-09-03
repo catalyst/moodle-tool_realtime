@@ -24,14 +24,10 @@
 
 require_once(dirname(__FILE__) . '/../../../config.php');
 require_once($CFG->dirroot . '/lib/adminlib.php');
-require_once(dirname(__FILE__) . '/plugin/phppoll/classes/realtime_tool_form.php');
-
-
-// Instantiate realtime_tool_form.
-$mform = new realtime_tool_form();
-
-$url = new moodle_url('/admin/tool/realtime/');
 admin_externalpage_setup('tool_realtime_report');
+// Instantiate realtime_tool_form.
+$mform = new tool_realtime\form\realtime_tool_form();
+$url = new moodle_url('/admin/tool/realtime/');
 $PAGE->set_context(context_system::instance());
 $PAGE->set_title(get_string('pluginname', 'tool_realtime'));
 $PAGE->set_heading(get_string('pluginname', 'tool_realtime'));
@@ -42,24 +38,30 @@ $area = "pingtest";
 $area2 = "pongtest";
 $itemid = 1;
 $itemid2 = 2;
-\tool_realtime\api::subscribe($context, $component, $area, $itemid);
-\tool_realtime\api::subscribe($context, $component2, $area2, $itemid2);
+
+tool_realtime\api::subscribe($context,$component2,$area2,$itemid2);
+echo "<script src='https://js.pusher.com/7.0/pusher.min.js'></script>";
 echo $OUTPUT->header();
 $mform->display();
-
-if ($mform->no_submit_button_pressed()) {
-    echo 'testlol';
-}
+// If the form's button is pressed do something.
+// TODO: add channel based on form fields.
 echo $OUTPUT->heading(get_string('eventtesting', 'tool_realtime'));
 Echo
 "<div id='testarea'></div>";
 echo $OUTPUT->footer();
 ?>
 
+
 <script type="text/javascript">
+    let submitButton = document.getElementById('id_submitbutton');
+    submitButton.addEventListener("click", function(evt) {
+        evt.preventDefault();
+        console.log("WORKING")
+        var addChannel = <?php echo tool_realtime\api::subscribe($context,"thiscomponent","pingtest",1); ?> ;
+    });
+
     require(['core/pubsub', 'tool_realtime/events'], function(PubSub, RealTimeEvents) {
         PubSub.subscribe(RealTimeEvents.EVENT, function(data) {
-            console.log(data);
             let testArea = document.getElementById('testarea');
             testArea.appendChild(document.createElement("br"));
             let headingForEvent = document.createElement('div');
@@ -94,4 +96,5 @@ echo $OUTPUT->footer();
         });
     });
 </script>
+
 
